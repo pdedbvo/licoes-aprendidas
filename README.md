@@ -8,7 +8,7 @@ Banco de lições aprendidas da empresa: o que aconteceu em cada empreendimento,
 
 ## Abas
 - **Banco** (abre aqui): categorias com "Todas" primeiro, busca em todos os campos (sem acento), filtros de onde, etapa e impacto. Clicar numa lição abre o detalhe; "Copiar link" gera `#licao=<id>`.
-- **Nova lição**: formulário. Publica na hora, sem login.
+- **Nova lição**: formulário. Publica na hora, sem login. Campos: título, categoria, tipo (positiva/negativa), onde e quando, o que aconteceu, por que aconteceu, como foi resolvido, **lição aprendida** (obrigatória), o que fazer ou evitar, impacto, palavras-chave, link e nome.
 - **Configurações**: categorias (qualquer pessoa cria; só administradores renomeiam ou excluem), listas de onde aconteceu e etapas (administradores), Acessos (administradores).
 
 ## Quem pode o quê

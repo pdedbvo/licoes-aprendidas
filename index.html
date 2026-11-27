@@ -141,6 +141,10 @@ section.bl{margin-top:36px}
 .lc:hover .ct,.lc:hover .mt,.lc:hover .pe{color:var(--claro)}
 .lc:hover .ev{border-color:rgba(255,255,255,.2)}
 .lc mark,.md mark{background:#FFB484;color:var(--preto);border-radius:3px;padding:0 2px}
+.bd{display:flex;gap:6px;flex:none}
+.nt{flex:none;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:4px 8px;border-radius:99px;border:1px solid currentColor;white-space:nowrap}
+.nt.positiva{color:#2E7D32}.nt.negativa{color:#C62828}
+.lc:hover .nt.positiva,.lc:hover .nt.negativa{color:var(--branco)}
 .im{flex:none;display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:5px 9px;border-radius:99px;color:var(--branco);background:var(--cinza);white-space:nowrap}
 .im.baixo{background:#2E7D32}.im.medio{background:#D9A400;color:var(--preto)}.im.alto{background:#C62828}
 .vz{padding:34px;border-radius:var(--raio);border:1px dashed var(--claro);color:var(--cinza);text-align:center;font-size:14px;line-height:1.6}
@@ -286,7 +290,7 @@ section.bl{margin-top:36px}
     </div>
   </header>
   <section class="ls-cats"><div class="cab rv"><div><p class="eyebrow">Categorias</p><h2 class="h2">Banco de lições</h2></div>
-      <p class="sub">A busca olha todos os campos de todas as categorias: título, problema, solução, o que evitar, onde, etapa, palavras-chave e autor.</p></div>
+      <p class="sub">A busca olha todos os campos de todas as categorias: título, problema, causa, lição, o que fazer, onde, etapa, palavras-chave e autor.</p></div>
     <div class="chips" id="cats"></div>
     <div class="ls-fil" id="fil"></div>
     <div class="ls-res"><span class="n" id="res"></span><a class="pill pr" href="#nova">Nova lição +</a></div>
@@ -343,6 +347,7 @@ const qs = new URLSearchParams(location.search);
 const DEMO = qs.has("demo"), FB_V = "10.12.2", HORAS = +C.horasEdicao || 24, JANELA = HORAS * 3600e3;
 const TIPOS = [["empreendimento","Empreendimento","empreendimentos"],["empresa","Empresa","empresas"],["time","Time","times"],["outro","Outro",""]];
 const IMP = { baixo: "Impacto baixo", medio: "Impacto médio", alto: "Impacto alto" };
+const NAT = { positiva: "Positiva · deu certo", negativa: "Negativa · deu errado" };
 const MESES = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
 const mesTxt = s => { const m = /^(\d{4})-(\d{2})/.exec(s || ""); return m ? `${MESES[+m[2]-1]}/${m[1]}` : ""; };
 const dataTxt = ms => ms ? new Date(ms).toLocaleDateString("pt-BR", {day:"2-digit", month:"2-digit", year:"numeric"}) : "";
@@ -352,7 +357,7 @@ let tt; const toast = t => { const el = $("#toast"); el.textContent = t; el.clas
 
 /* ===================== estado ===================== */
 const S = { licoes: [], cats: [], listas: null, uid: null, email: null, admin: false, pronto: false, erro: "",
-  cat: "todas", termo: "", f: { onde: "", etapa: "", impacto: "" }, ordem: "recentes" };
+  cat: "todas", termo: "", f: { onde: "", etapa: "", impacto: "", natureza: "" }, ordem: "recentes" };
 const listas = () => S.listas || C.listas || {};
 const catDe = id => catsVis().find(c => c.id === id);
 const catNome = l => (catDe(l.categoria) || {}).nome || l.categoriaNome || "Sem categoria";
@@ -377,14 +382,14 @@ function demoInicial(){
   const L = [
     { id: "x1", titulo: "Impermeabilizar o subsolo antes de liberar o reaterro", categoria: "execucao-de-obra", ondeTipo: "empreendimento", onde: "BE02 · BE Deodoro", etapa: "Obra", quando: "2026-05",
       problema: "O reaterro da cortina foi liberado antes da impermeabilização. Com a primeira chuva forte apareceu infiltração na garagem.", causa: "A sequência do cronograma não tinha a impermeabilização como predecessora do reaterro.",
-      solucao: "Escavação parcial, impermeabilização por fora nos trechos críticos e injeção nos pontos de infiltração.", evitar: "Colocar a impermeabilização como predecessora obrigatória do reaterro no cronograma e fazer a inspeção antes de liberar.",
+      natureza: "negativa", licao: "Impermeabilização e reaterro são etapas dependentes: a ordem errada custa retrabalho caro.", solucao: "Escavação parcial, impermeabilização por fora nos trechos críticos e injeção nos pontos de infiltração.", evitar: "Colocar a impermeabilização como predecessora obrigatória do reaterro no cronograma e fazer a inspeção antes de liberar.",
       impacto: "alto", tags: "impermeabilização, subsolo, cronograma, infiltração", autor: "Exemplo", autorUid: "outro", criadoMs: h - 40*d },
     { id: "x2", titulo: "Protocolar o alvará com o projeto de bombeiros já aprovado", categoria: "aprovacao-e-legalizacao", ondeTipo: "empreendimento", onde: "BE03 · BE Bonifácio", etapa: "Aprovação", quando: "2026-02",
       problema: "A prefeitura devolveu o processo pedindo a aprovação do Corpo de Bombeiros, e o prazo de lançamento atrasou 45 dias.", causa: "Os dois processos correram em paralelo achando que não dependiam um do outro.",
-      solucao: "Aprovação no Bombeiros em regime de urgência e novo protocolo.", evitar: "Conferir a lista de documentos da prefeitura antes do protocolo e tratar o projeto de bombeiros como pré-requisito.",
+      natureza: "negativa", licao: "O projeto de bombeiros é pré-requisito do alvará.", solucao: "Aprovação no Bombeiros em regime de urgência e novo protocolo.", evitar: "Conferir a lista de documentos da prefeitura antes do protocolo e tratar o projeto de bombeiros como pré-requisito.",
       impacto: "medio", tags: "alvará, bombeiros, prefeitura", autor: "Exemplo", autorUid: "outro", criadoMs: h - 20*d },
     { id: "x3", titulo: "Pedir os acessos do novo colaborador uma semana antes", categoria: "gestao-e-pessoas", ondeTipo: "time", onde: "CSUA", etapa: "Gestão do dia a dia", quando: "2026-09",
-      problema: "A pessoa começou sem e-mail e sem UAU e perdeu os dois primeiros dias.", causa: "O pedido foi aberto no dia do início.", solucao: "Pedido urgente ao CSUM.",
+      problema: "A pessoa começou sem e-mail e sem UAU e perdeu os dois primeiros dias.", causa: "O pedido foi aberto no dia do início.", solucao: "Pedido urgente ao CSUM.", natureza: "negativa", licao: "Acessos levam dias para sair: precisam ser pedidos antes do primeiro dia.",
       evitar: "Abrir o chamado de acessos na Central de Serviços uma semana antes do início, junto com o pedido do notebook.", impacto: "baixo", tags: "onboarding, acessos, UAU", autor: "Exemplo", autorUid: "eu", criadoMs: h - 2*36e5 }
   ];
   return L;
@@ -513,12 +518,12 @@ const ondeTxt = l => l.onde || "";
 const etapas = () => listas().etapas || [];
 
 /* ===================== BANCO ===================== */
-const texto = l => norm([l.titulo, catNome(l), l.onde, l.etapa, mesTxt(l.quando), l.problema, l.causa, l.solucao, l.evitar, l.tags, l.autor, IMP[l.impacto]].join(" \n "));
+const texto = l => norm([l.titulo, catNome(l), l.onde, l.etapa, mesTxt(l.quando), l.problema, l.causa, l.solucao, l.licao, l.evitar, l.tags, l.autor, IMP[l.impacto], NAT[l.natureza]].join(" \n "));
 const palavras = () => norm(S.termo).split(/\s+/).filter(Boolean);
 function filtradas(semCat){
   const ws = palavras();
   return S.licoes.filter(l => (semCat || S.cat === "todas" || l.categoria === S.cat || (S.cat === "_sem" && !catDe(l.categoria)))
-    && (!S.f.onde || l.onde === S.f.onde) && (!S.f.etapa || l.etapa === S.f.etapa) && (!S.f.impacto || l.impacto === S.f.impacto)
+    && (!S.f.onde || l.onde === S.f.onde) && (!S.f.etapa || l.etapa === S.f.etapa) && (!S.f.impacto || l.impacto === S.f.impacto) && (!S.f.natureza || l.natureza === S.f.natureza)
     && ws.every(w => texto(l).includes(w)));
 }
 /* destaca as palavras procuradas, sem depender de acento */
@@ -548,12 +553,13 @@ function pintaBanco(){
   const sel = (k, rot, ops) => `<span class="sel ${S.f[k] ? "on" : ""}"><select data-f="${k}" aria-label="${esc(rot)}"><option value="">${esc(rot)}</option>${ops}</select></span>`;
   $("#fil").innerHTML = sel("onde", "Onde: todos", og("Empreendimentos", noL("empreendimentos")) + og("Empresas", noL("empresas")) + og("Times", noL("times")) + og("Outros", outros))
     + sel("etapa", "Etapa: todas", [...new Set([...etapas(), ...usados("etapa")])].filter(v => usados("etapa").includes(v)).map(v => `<option ${S.f.etapa === v ? "selected" : ""}>${esc(v)}</option>`).join(""))
+    + sel("natureza", "Tipo: todas", Object.entries(NAT).map(([k,t]) => `<option value="${k}" ${S.f.natureza === k ? "selected" : ""}>${t}</option>`).join(""))
     + sel("impacto", "Impacto: todos", Object.entries(IMP).map(([k,t]) => `<option value="${k}" ${S.f.impacto === k ? "selected" : ""}>${t}</option>`).join(""))
     + `<span class="sel"><select id="ordem" aria-label="Ordem"><option value="recentes">Mais recentes</option><option value="antigas" ${S.ordem==="antigas"?"selected":""}>Mais antigas</option><option value="impacto" ${S.ordem==="impacto"?"selected":""}>Maior impacto</option><option value="az" ${S.ordem==="az"?"selected":""}>De A a Z</option></select></span>`
-    + (S.f.onde || S.f.etapa || S.f.impacto || S.termo || S.cat !== "todas" ? `<button class="lk" id="limpa">Limpar filtros</button>` : "");
+    + (S.f.onde || S.f.etapa || S.f.impacto || S.f.natureza || S.termo || S.cat !== "todas" ? `<button class="lk" id="limpa">Limpar filtros</button>` : "");
   $$("#fil select[data-f]").forEach(s => s.onchange = () => { S.f[s.dataset.f] = s.value; pintaBanco(); });
   $("#ordem").onchange = e => { S.ordem = e.target.value; pintaBanco(); };
-  if ($("#limpa")) $("#limpa").onclick = () => { S.f = { onde: "", etapa: "", impacto: "" }; S.termo = ""; $("#q").value = ""; S.cat = "todas"; pintaBanco(); };
+  if ($("#limpa")) $("#limpa").onclick = () => { S.f = { onde: "", etapa: "", impacto: "", natureza: "" }; S.termo = ""; $("#q").value = ""; S.cat = "todas"; pintaBanco(); };
   /* lista */
   const pesoImp = { alto: 3, medio: 2, baixo: 1 };
   const v = filtradas().sort(S.ordem === "antigas" ? (a,b) => a.criadoMs - b.criadoMs : S.ordem === "az" ? (a,b) => String(a.titulo).localeCompare(String(b.titulo), "pt-BR")
@@ -561,11 +567,11 @@ function pintaBanco(){
   const catAt = S.cat === "todas" ? "" : S.cat === "_sem" ? "Sem categoria" : ((cats.find(c => c.id === S.cat) || {}).nome || "");
   $("#res").innerHTML = `<b>${v.length}</b>${v.length === 1 ? "lição" : "lições"}${catAt ? ` em ${esc(catAt)}` : ""}${S.termo ? ` para "${esc(S.termo)}"` : ""}`;
   $("#lista").innerHTML = v.length ? `<div class="lcs">${v.map(l => `<button class="lc" data-id="${esc(l.id)}">
-      <span class="tp"><span class="ct">${marca(catNome(l))}</span>${l.impacto ? `<span class="im ${esc(l.impacto)}">${IMP[l.impacto].replace("Impacto ","")}</span>` : ""}</span>
+      <span class="tp"><span class="ct">${marca(catNome(l))}</span><span class="bd">${l.natureza ? `<span class="nt ${esc(l.natureza)}">${l.natureza === "positiva" ? "Positiva" : "Negativa"}</span>` : ""}${l.impacto ? `<span class="im ${esc(l.impacto)}">${IMP[l.impacto].replace("Impacto ","")}</span>` : ""}</span></span>
       <h4>${marca(l.titulo)}</h4>
       <span class="mt">${marca([ondeTxt(l), l.etapa, mesTxt(l.quando)].filter(Boolean).join(" · ") || "—")}</span>
       <span class="pb">${marca(l.problema)}</span>
-      ${l.evitar ? `<span class="ev"><b>Da próxima vez</b>${marca(l.evitar)}</span>` : ""}
+      ${l.licao ? `<span class="ev"><b>Lição</b>${marca(l.licao)}</span>` : l.evitar ? `<span class="ev"><b>Da próxima vez</b>${marca(l.evitar)}</span>` : ""}
       <span class="pe">${marca(l.autor || "")}${l.autor ? " · " : ""}${dataTxt(l.criadoMs)}${pode(l) && !S.admin ? " · você ainda pode editar" : ""}</span></button>`).join("")}</div>`
     : S.licoes.length ? `<div class="vz">Nenhuma lição encontrada${S.termo ? ` para <b>"${esc(S.termo)}"</b>` : " com esses filtros"}.<br>Tente outra palavra, limpe os filtros ou registre essa lição.<div class="dl"><a class="pill pr" href="#nova">Nova lição +</a></div></div>`
     : `<div class="vz"><b>O banco ainda está vazio.</b><br>Registre a primeira lição: o que aconteceu, como foi resolvido e o que fazer da próxima vez.<div class="dl"><a class="pill pr" href="#nova">Registrar a primeira lição +</a></div></div>`;
@@ -588,10 +594,10 @@ function abreDetalhe(id){
   const f = document.createElement("div"); f.className = "md-fd";
   f.innerHTML = `<div class="md" role="dialog" aria-modal="true" aria-label="${esc(l.titulo)}">
     <div class="md-cb"><div class="hz-pat"></div><p class="ct">${esc(catNome(l))}</p><h2>${marca(l.titulo)}</h2>
-      <div class="tg">${[ondeTxt(l), l.etapa, mesTxt(l.quando), IMP[l.impacto]].filter(Boolean).map(t => `<span>${esc(t)}</span>`).join("")}</div>
+      <div class="tg">${[ondeTxt(l), l.etapa, mesTxt(l.quando), NAT[l.natureza], IMP[l.impacto]].filter(Boolean).map(t => `<span>${esc(t)}</span>`).join("")}</div>
       <button class="md-x" aria-label="Fechar">${XIS}</button></div>
     <div class="md-cp">
-      ${bl("O que aconteceu", l.problema)}${bl("Por que aconteceu", l.causa)}${bl("Como foi resolvido", l.solucao)}${bl("O que fazer ou evitar da próxima vez", l.evitar, "ev")}
+      ${bl("O que aconteceu", l.problema)}${bl("Por que aconteceu", l.causa)}${bl("Como foi resolvido", l.solucao)}${bl("Lição aprendida", l.licao, "ev")}${bl("O que fazer ou evitar da próxima vez", l.evitar)}
       ${tags.length ? `<div class="md-bl"><small>Palavras-chave</small><div class="md-kw">${tags.map(t => `<span>${marca(t)}</span>`).join("")}</div></div>` : ""}
       ${l.link ? `<div><a class="pill cl" href="${esc(/^https?:/.test(l.link) ? l.link : "#")}" target="_blank" rel="noopener">Abrir documento ${SETA}</a></div>` : ""}
       <div class="md-av">${aviso}</div>
@@ -652,9 +658,11 @@ function pintaForm(id){
       <label class="fl l2"><span>O que aconteceu <em>*</em></span><small>O problema ou a situação, com os fatos.</small><textarea data-k="problema" maxlength="4000">${esc(l.problema || "")}</textarea></label>
       <label class="fl l2">Por que aconteceu<small>A causa. É o campo que mais ensina.</small><textarea data-k="causa" maxlength="4000">${esc(l.causa || "")}</textarea></label>
       <label class="fl l2">Como foi resolvido<textarea data-k="solucao" maxlength="4000">${esc(l.solucao || "")}</textarea></label>
-      <label class="fl l2"><span>O que fazer ou evitar da próxima vez <em>*</em></span><small>A recomendação prática para quem passar pela mesma situação.</small><textarea data-k="evitar" maxlength="4000">${esc(l.evitar || "")}</textarea></label>
+      <label class="fl l2"><span>Lição aprendida <em>*</em></span><small>O que a empresa aprendeu: o que deve ser considerado em situações parecidas.</small><textarea data-k="licao" maxlength="4000">${esc(l.licao || "")}</textarea></label>
+      <label class="fl l2">O que fazer ou evitar da próxima vez<small>A ação prática para quem passar pela mesma situação.</small><textarea data-k="evitar" maxlength="4000">${esc(l.evitar || "")}</textarea></label>
     </div>
     <div class="nf-bl"><h3><i>4</i>Complementos</h3>
+      <div class="fl l2">Tipo de lição<span class="chips" id="nats">${Object.entries(NAT).map(([k,t]) => `<button type="button" class="chip ${l.natureza === k ? "at" : ""}" data-n="${k}">${t}</button>`).join("")}</span></div>
       <div class="fl l2">Impacto<span class="chips" id="imps">${Object.entries(IMP).map(([k,t]) => `<button type="button" class="chip ${l.impacto === k ? "at" : ""}" data-i="${k}">${t.replace("Impacto ","")}</button>`).join("")}</span></div>
       <label class="fl l2">Palavras-chave<small>Separe por vírgula. Ajudam a busca: material, serviço, fornecedor, documento.</small><input data-k="tags" maxlength="300" value="${esc(l.tags || "")}"></label>
       <label class="fl">Link de documento<small>Opcional. Ex.: pasta ou arquivo no SharePoint.</small><input data-k="link" type="url" maxlength="600" placeholder="https://" value="${esc(l.link || "")}"></label>
@@ -662,9 +670,10 @@ function pintaForm(id){
     </div>
     <div class="nf-ac"><span class="msg" id="nf-msg"></span><div class="dl"><button class="pill pr" id="nf-ok">${ed ? "Salvar alterações" : "Publicar lição"} ${SETAD}</button><a class="pill cl" href="${ed ? "#licao=" + esc(ed.id) : "#"}">Cancelar</a></div></div>`;
   const F = $("#nf-form"), val = k => (F.querySelector(`[data-k="${k}"]`) || {}).value;
-  const le = () => { const o = {}; F.querySelectorAll("[data-k]").forEach(i => o[i.dataset.k] = i.value.trim()); o.ondeTipo = l.ondeTipo; o.impacto = l.impacto || ""; return o; };
+  const le = () => { const o = {}; F.querySelectorAll("[data-k]").forEach(i => o[i.dataset.k] = i.value.trim()); o.ondeTipo = l.ondeTipo; o.impacto = l.impacto || ""; o.natureza = l.natureza || ""; return o; };
   if (!ed) F.oninput = () => { rascunho = { ...l, ...le() }; };
   F.querySelector('[data-k="categoria"]').onchange = e => { $("#cat-d").textContent = (catsVis().find(c => c.id === e.target.value) || {}).d || ""; };
+  $$("#nats .chip").forEach(b => b.onclick = () => { l.natureza = l.natureza === b.dataset.n ? "" : b.dataset.n; $$("#nats .chip").forEach(c => c.classList.toggle("at", c.dataset.n === l.natureza)); if (!ed) rascunho = { ...l, ...le() }; });
   $$("#imps .chip").forEach(b => b.onclick = () => { l.impacto = l.impacto === b.dataset.i ? "" : b.dataset.i; $$("#imps .chip").forEach(c => c.classList.toggle("at", c.dataset.i === l.impacto)); if (!ed) rascunho = { ...l, ...le() }; });
   /* troca de tipo sem perder o que foi digitado */
   $$("#tipos .chip").forEach(b => b.onclick = () => { Object.assign(l, le()); l.ondeTipo = b.dataset.t; l.onde = "";
@@ -691,7 +700,7 @@ function pintaForm(id){
   $("#nf-ok").onclick = async () => {
     const o = le(), m = $("#nf-msg"), falta = [];
     F.querySelectorAll(".er").forEach(x => x.classList.remove("er"));
-    [["titulo","título"],["categoria","categoria"],["problema","o que aconteceu"],["evitar","o que fazer da próxima vez"],["autor","seu nome"]].forEach(([k,t]) => { if (!o[k]){ falta.push(t); const i = F.querySelector(`[data-k="${k}"]`); i && i.classList.add("er"); } });
+    [["titulo","título"],["categoria","categoria"],["problema","o que aconteceu"],["licao","lição aprendida"],["autor","seu nome"]].forEach(([k,t]) => { if (!o[k]){ falta.push(t); const i = F.querySelector(`[data-k="${k}"]`); i && i.classList.add("er"); } });
     if (falta.length){ m.className = "msg er"; m.textContent = "Falta preencher: " + falta.join(", ") + "."; return; }
     if (o.link && !/^https?:\/\//i.test(o.link)){ m.className = "msg er"; m.textContent = "O link precisa começar com https://"; F.querySelector('[data-k="link"]').classList.add("er"); return; }
     const c = catsVis().find(x => x.id === o.categoria); o.categoriaNome = c ? c.nome : "";
