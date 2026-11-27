@@ -32,7 +32,7 @@ window.LICOES_APP = {
   listas: {
     empreendimentos: ["BE01 · BE Garden", "BE02 · BE Deodoro", "BE03 · BE Bonifácio", "BE06 · BE São Paulo", "BE09 · BE Dumont", "BE Modelo"],
     empresas: ["DBVO", "DBVO Hub", "Edifica", "Delta Bravo Engenharia", "Delta Bravo Obras", "BE A Moradia do Futuro", "Engine", "Inside"],
-    times: ["CSUA", "CSUM", "ENGO", "ENGE", "ENGA", "Operações", "Incorporação"],
+    times: ["CSUA", "CSUM", "EDFE", "ENGO", "ENGE", "ENGA", "Operações", "Incorporação"],
     etapas: ["Terreno e viabilidade", "Projeto", "Aprovação", "Lançamento e vendas", "Suprimentos", "Obra", "Entrega", "Pós-obra", "Gestão do dia a dia"]
   }
 };
